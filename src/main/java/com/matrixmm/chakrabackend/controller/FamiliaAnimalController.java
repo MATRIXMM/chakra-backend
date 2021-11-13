@@ -1,6 +1,7 @@
 package com.matrixmm.chakrabackend.controller;
 
 import com.matrixmm.chakrabackend.dto.FamiliaAnimalDTO;
+import com.matrixmm.chakrabackend.dto.FamiliaIncidenciaDTO;
 import com.matrixmm.chakrabackend.dto.response.RestResponse;
 import com.matrixmm.chakrabackend.model.Alimentacion;
 import com.matrixmm.chakrabackend.model.Familia;
@@ -16,6 +17,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/familia_animal")
 public class FamiliaAnimalController {
     @Autowired
@@ -75,12 +77,42 @@ public class FamiliaAnimalController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
+    @RequestMapping(value="actualizar", method=RequestMethod.PUT)
+    public ResponseEntity<?> actualizarFamiliaAnimal(@Valid @RequestBody FamiliaAnimalDTO familiaAnimalDTO, BindingResult errors) {
+        RestResponse response = new RestResponse();
+        String validationMessage = MyUtilMethods.getValidationMessage(errors);
+        if (validationMessage != null) {
+            response.setStatus(HttpStatus.BAD_REQUEST);
+            response.setMessage(validationMessage);
+            return ResponseEntity.status(response.getStatus()).body(response);
+        }
+
+        try {
+            Boolean existe = familiaAnimalService.existeFamiliaAnimalById(familiaAnimalDTO.getIdFamilia());
+            if (!existe){
+                response.setStatus(HttpStatus.NOT_FOUND);
+                response.setMessage("No se encuentra una familia asociada al id");
+            }
+            else {
+                familiaAnimalService.actualizar(familiaAnimalDTO);
+                response.setStatus(HttpStatus.OK);
+                response.setMessage("Registro existoso");
+            }
+        }
+        catch (Exception e){
+            response.setMessage("Error al crear");
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
     @RequestMapping(value="validar/{id_familia}", method=RequestMethod.GET)
     public ResponseEntity<?> validarFamiliaAlimentacionHorario(@PathVariable Long id_familia){
         RestResponse response = new RestResponse();
 
         try {
-            Familia elemento = familiaAnimalService.validar(id_familia);
+            FamiliaAnimalDTO elemento = familiaAnimalService.validar(id_familia);
             if (elemento == null) {
                 response.setStatus(HttpStatus.NOT_FOUND);
                 response.setMessage("No se encuentra una familia asociada al id");

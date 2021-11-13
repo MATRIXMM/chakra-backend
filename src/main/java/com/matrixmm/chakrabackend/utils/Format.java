@@ -7,6 +7,7 @@ public class Format {
     public static final String DATE = "yyyy-MM-dd";
     public static final String TIME = "HH:mm:ss";
 
+    public static final String LocalDateTimeYearMonthDayHourMinuteSecondForPathVariable = "yyyy-MM-dd'T'HH:mm:ss";
     public static final String LocalDateYearMonthDay = "yyyy-MM-dd";
     public static final String LocalTimeHourMinutes = "HH:mm";
 }

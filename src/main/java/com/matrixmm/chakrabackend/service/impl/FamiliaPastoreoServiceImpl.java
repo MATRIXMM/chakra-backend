@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -84,6 +85,29 @@ public class FamiliaPastoreoServiceImpl implements FamiliaPastoreoService {
             }
         }
         return familiasPerPage;
+    }
+
+    public List<FamiliaPastoreoDTO> listarPorFechas(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        List<Pastoreo> pastoreos = pastoreoDAO.findByFechas(fechaInicio, fechaFin);
+
+        List<FamiliaPastoreoDTO> familias = new ArrayList<FamiliaPastoreoDTO>();
+
+        for (Pastoreo pastoreo : pastoreos) {
+            Familia familia = pastoreo.getFamilia();
+
+            FamiliaPastoreoDTO familiaPastoreoDTO = new FamiliaPastoreoDTO();
+
+            familiaPastoreoDTO.setIdFamilia(familia.getIdFamilia());
+            familiaPastoreoDTO.setIdPastoreo(pastoreo.getIdPastoreo());
+            familiaPastoreoDTO.setTiempo(pastoreo.getTiempo());
+            familiaPastoreoDTO.setHorario(pastoreo.getHorario());
+            familiaPastoreoDTO.setEstado(pastoreo.getEstado());
+            familiaPastoreoDTO.setDia(pastoreo.getDia());
+
+            familias.add(familiaPastoreoDTO);
+        }
+
+        return familias;
     }
 
     @Override

@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,6 +97,44 @@ public class FamiliaAlimentacionHorarioServiceImpl implements FamiliaAlimentacio
             }
         }
         return familiasPerPage;
+    }
+
+    public List<FamiliaAlimentacionHorarioDTO> listarPorFechas(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        List<Horario> horarios = horarioDAO.findByFechas(fechaInicio, fechaFin);
+
+        Long idAlimentacionPrevious = null;
+        FamiliaAlimentacionHorarioDTO familiaAlimentacionHorarioDTO = new FamiliaAlimentacionHorarioDTO();
+        List<Horario> horariosToInsert = new ArrayList<Horario>();
+
+        List<FamiliaAlimentacionHorarioDTO> familias = new ArrayList<FamiliaAlimentacionHorarioDTO>();
+
+        for (Horario horario : horarios) {
+            Alimentacion alimentacion = horario.getAlimentacion();
+            Familia familia = alimentacion.getFamilia();
+
+            if ((idAlimentacionPrevious == null) || (!idAlimentacionPrevious.equals(alimentacion.getIdAlimentacion()))) {
+                familiaAlimentacionHorarioDTO = new FamiliaAlimentacionHorarioDTO();
+
+                horariosToInsert = new ArrayList<Horario>();
+
+                familiaAlimentacionHorarioDTO.setIdFamilia(familia.getIdFamilia());
+                familiaAlimentacionHorarioDTO.setIdAlimentacion(alimentacion.getIdAlimentacion());
+                familiaAlimentacionHorarioDTO.setTipo(alimentacion.getTipo());
+                familiaAlimentacionHorarioDTO.setCantidad(alimentacion.getCantidad());
+                familiaAlimentacionHorarioDTO.setDiasSeguimiento(null);
+                familiaAlimentacionHorarioDTO.setEstado(alimentacion.getEstado());
+
+                familias.add(familiaAlimentacionHorarioDTO);
+
+                idAlimentacionPrevious = alimentacion.getIdAlimentacion();
+            }
+
+            horariosToInsert.add(horario);
+
+            familiaAlimentacionHorarioDTO.setHorarios(horariosToInsert);
+        }
+
+        return familias;
     }
 
     @Override

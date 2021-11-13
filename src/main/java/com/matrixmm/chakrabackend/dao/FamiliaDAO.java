@@ -15,15 +15,15 @@ import java.util.List;
 public interface FamiliaDAO extends JpaRepository<Familia,Long> {
     Page<Familia> findByPeriodo(String periodo, Pageable pageable);
 
-    @Query("SELECT f FROM Familia f WHERE f.idFamilia=:id_familia")
+    @Query("SELECT DISTINCT f FROM Familia f WHERE f.idFamilia=:id_familia")
     public List<Familia> findByIdFamilia(@Param("id_familia") Long idFamilia);
 
-    @Query("SELECT f FROM Animal a INNER JOIN Familia f ON a.familia.idFamilia=f.idFamilia AND f.periodo=:periodo AND a.tipo=:tipo ORDER BY f.idFamilia DESC")
+    @Query("SELECT DISTINCT f FROM Animal a INNER JOIN Familia f ON a.familia.idFamilia=f.idFamilia AND f.periodo=:periodo AND a.tipo=:tipo ORDER BY f.idFamilia DESC")
     public List<Familia> findByPeriodoAndTipo(@Param("periodo") String periodo, @Param("tipo") String tipo, Pageable pageable);
 
-    @Query("SELECT f FROM Incidencia i INNER JOIN Familia f ON i.familia.idFamilia=f.idFamilia AND i.idIncidencia IS NOT NULL AND f.periodo=:periodo ORDER BY f.idFamilia DESC")
+    @Query("SELECT DISTINCT f FROM Incidencia i INNER JOIN Familia f ON i.familia.idFamilia=f.idFamilia AND i.idIncidencia IS NOT NULL AND f.periodo=:periodo ORDER BY f.idFamilia DESC")
     public List<Familia> findIncidenciaByPeriodo(@Param("periodo") String periodo, Pageable pageable);
 
-    @Query("SELECT f FROM Incidencia i INNER JOIN Familia f ON i.familia.idFamilia=f.idFamilia AND i.idIncidencia IS NOT NULL AND f.periodo=:periodo INNER JOIN Animal a ON a.familia.idFamilia=f.idFamilia AND a.tipo=:tipo ORDER BY f.idFamilia DESC")
+    @Query("SELECT DISTINCT f FROM Incidencia i INNER JOIN Familia f ON i.familia.idFamilia=f.idFamilia AND i.idIncidencia IS NOT NULL AND f.periodo=:periodo INNER JOIN Animal a ON a.familia.idFamilia=f.idFamilia AND a.tipo=:tipo ORDER BY f.idFamilia DESC")
     public List<Familia> findIncidenciaByPeriodoAndTipo(@Param("periodo") String periodo, @Param("tipo") String tipo, Pageable pageable);
 }

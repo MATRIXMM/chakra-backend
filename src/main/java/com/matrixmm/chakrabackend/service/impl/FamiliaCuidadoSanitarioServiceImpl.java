@@ -13,6 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,6 +82,28 @@ public class FamiliaCuidadoSanitarioServiceImpl implements FamiliaCuidadoSanitar
             }
         }
         return familiasPerPage;
+    }
+
+    public List<FamiliaCuidadoSanitarioDTO> listarPorFechas(LocalDate fechaInicio, LocalDate fechaFin) {
+        List<CuidadoSanitario> cuidadoSanitarios = cuidadoSanitarioDAO.findByFechas(fechaInicio, fechaFin);
+
+        List<FamiliaCuidadoSanitarioDTO> familias = new ArrayList<FamiliaCuidadoSanitarioDTO>();
+
+        for (CuidadoSanitario cuidadoSanitario : cuidadoSanitarios) {
+            Familia familia = cuidadoSanitario.getFamilia();
+
+            FamiliaCuidadoSanitarioDTO familiaCuidadoSanitarioDTO = new FamiliaCuidadoSanitarioDTO();
+            familiaCuidadoSanitarioDTO.setIdFamilia(familia.getIdFamilia());
+            familiaCuidadoSanitarioDTO.setIdCuidadoSanitario(cuidadoSanitario.getIdCuidadoSanitario());
+            familiaCuidadoSanitarioDTO.setNombre(cuidadoSanitario.getNombre());
+            familiaCuidadoSanitarioDTO.setFecha(cuidadoSanitario.getFecha());
+            familiaCuidadoSanitarioDTO.setEstado(cuidadoSanitario.getEstado());
+            familiaCuidadoSanitarioDTO.setIdIncidencia(null);
+
+            familias.add(familiaCuidadoSanitarioDTO);
+        }
+
+        return familias;
     }
 
     @Override

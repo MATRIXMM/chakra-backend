@@ -15,5 +15,6 @@ public interface FamiliaIncidenciaService {
     List<FamiliaIncidenciaDTO> listar (String periodo, String tipo, Integer perPage, Integer page);
     void crear(FamiliaIncidenciaDTO familiaIncidenciaDTO);
     void actualizar(FamiliaIncidenciaDTO familiaIncidenciaDTO);
-    Incidencia validar(Long idFamilia);
+    void eliminar(FamiliaIncidenciaDTO familiaIncidenciaDTO);
+    Incidencia validar(Long idIncidencia);
 }

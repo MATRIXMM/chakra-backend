@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -22,6 +23,6 @@ public class FamiliaAlimentacionHorarioDTO implements Serializable {
     private Integer cantidad;
     private Integer diasSeguimiento;
     private Boolean estado;
-    @JsonFormat(pattern=Format.LocalTimeHourMinutes)
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern=Format.DATE_TIME)
     private List<Horario> horarios;
 }

@@ -14,9 +14,12 @@ import java.util.List;
 
 @Repository
 public interface IncidenciaDAO extends JpaRepository<Incidencia,Long> {
-    @Query("SELECT i FROM Incidencia i WHERE i.familia.idFamilia=:id_familia AND i.fechaRegistro=:fecha_registro")
+    @Query("SELECT DISTINCT i FROM Incidencia i WHERE i.familia.idFamilia=:id_familia AND i.fechaRegistro=:fecha_registro")
     public List<Incidencia> existeFamiliaIncidencia(@Param("id_familia") Long idFamilia, @Param("fecha_registro") LocalDate fechaRegistro);
 
-    @Query("SELECT i FROM Incidencia i WHERE i.familia.idFamilia=:id_familia")
+    @Query("SELECT DISTINCT i FROM Incidencia i WHERE i.familia.idFamilia=:id_familia")
     public List<Incidencia> findByIdFamilia(@Param("id_familia") Long idFamilia);
+
+    @Query("SELECT DISTINCT i FROM Incidencia i WHERE i.idIncidencia=:id_incidencia")
+    public List<Incidencia> findByIdIncidencia(@Param("id_incidencia") Long idIncidencia);
 }

@@ -23,7 +23,7 @@ public class Animal {
     @Column(name="cantidad")
     private Integer cantidad;
 
-    @Column(name="caracteristica", length=20)
+    @Column(name="caracteristica", length=100)
     private String caracteristica;
 
     @ManyToOne

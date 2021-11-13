@@ -17,6 +17,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/familia_incidencia")
 public class FamiliaIncidenciaController {
     @Autowired
@@ -118,12 +119,50 @@ public class FamiliaIncidenciaController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-    @RequestMapping(value="validar/{id_familia}", method=RequestMethod.GET)
-    public ResponseEntity<?> validarFamiliaIncidencia(@PathVariable Long id_familia){
+    @RequestMapping(value="eliminar", method=RequestMethod.DELETE)
+    public ResponseEntity<?> eliminarFamiliaIncidencia(@Valid @RequestBody FamiliaIncidenciaDTO familiaIncidenciaDTO, BindingResult errors) {
+        RestResponse response = new RestResponse();
+        String validationMessage = MyUtilMethods.getValidationMessage(errors);
+        if (validationMessage != null) {
+            response.setStatus(HttpStatus.BAD_REQUEST);
+            response.setMessage(validationMessage);
+            return ResponseEntity.status(response.getStatus()).body(response);
+        }
+
+        try {
+            Boolean existe = familiaIncidenciaService.existeFamilia(familiaIncidenciaDTO.getIdFamilia());
+            if (!existe){
+                response.setStatus(HttpStatus.NOT_FOUND);
+                response.setMessage("No se encuentra una familia asociada al id");
+            }
+            else {
+                existe = familiaIncidenciaService.existeIncidencia(familiaIncidenciaDTO.getIdIncidencia());
+
+                if (!existe) {
+                    response.setStatus(HttpStatus.NOT_FOUND);
+                    response.setMessage("No se encuentra un pastoreo asociada al id");
+                }
+                else {
+                    familiaIncidenciaService.eliminar(familiaIncidenciaDTO);
+                    response.setStatus(HttpStatus.OK);
+                    response.setMessage("Eliminación existosa");
+                }
+            }
+        }
+        catch (Exception e){
+            response.setMessage("Error al crear");
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @RequestMapping(value="validar/{id_incidencia}", method=RequestMethod.GET)
+    public ResponseEntity<?> validarFamiliaIncidencia(@PathVariable Long id_incidencia){
         RestResponse response = new RestResponse();
 
         try {
-            Incidencia elemento = familiaIncidenciaService.validar(id_familia);
+            Incidencia elemento = familiaIncidenciaService.validar(id_incidencia);
             if (elemento == null) {
                 response.setStatus(HttpStatus.NOT_FOUND);
                 response.setMessage("No se encuentra una familia asociada al id");

@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,6 +97,36 @@ public class FamiliaIncidenciaCuidadoSanitarioServiceImpl implements FamiliaInci
     }
 
     @Override
+    public List<FamiliaIncidenciaCuidadoSanitarioDTO> listarPorFechas(LocalDate fechaInicio, LocalDate fechaFin) {
+        List<CuidadoSanitario> cuidadoSanitarios = cuidadoSanitarioDAO.findIncidenciaByFechas(fechaInicio, fechaFin);
+
+        List<FamiliaIncidenciaCuidadoSanitarioDTO> familias = new ArrayList<FamiliaIncidenciaCuidadoSanitarioDTO>();
+
+        for (CuidadoSanitario cuidadoSanitario : cuidadoSanitarios) {
+            Familia familia = cuidadoSanitario.getFamilia();
+            Incidencia incidencia = cuidadoSanitario.getIncidencia();
+
+            FamiliaIncidenciaCuidadoSanitarioDTO familiaCuidadoSanitarioDTO = new FamiliaIncidenciaCuidadoSanitarioDTO();
+            familiaCuidadoSanitarioDTO.setIdFamilia(familia.getIdFamilia());
+            familiaCuidadoSanitarioDTO.setIdCuidadoSanitario(cuidadoSanitario.getIdCuidadoSanitario());
+            familiaCuidadoSanitarioDTO.setIdIncidencia(incidencia.getIdIncidencia());
+            familiaCuidadoSanitarioDTO.setNombre(cuidadoSanitario.getNombre());
+            familiaCuidadoSanitarioDTO.setFecha(cuidadoSanitario.getFecha());
+            familiaCuidadoSanitarioDTO.setEstado(cuidadoSanitario.getEstado());
+            familiaCuidadoSanitarioDTO.setFechaRegistro(incidencia.getFechaRegistro());
+            familiaCuidadoSanitarioDTO.setNombreAnimal(incidencia.getNombreAnimal());
+            familiaCuidadoSanitarioDTO.setCantidadAnimales(incidencia.getCantidadAnimales());
+            familiaCuidadoSanitarioDTO.setGravedadIncidencia(incidencia.getGravedadIncidencia());
+            familiaCuidadoSanitarioDTO.setObservacion(incidencia.getObservacion());
+            familiaCuidadoSanitarioDTO.setResultado(incidencia.getResultado());
+
+            familias.add(familiaCuidadoSanitarioDTO);
+        }
+
+        return familias;
+    }
+
+    @Override
     public void actualizar(FamiliaIncidenciaCuidadoSanitarioDTO familiaIncidenciaCuidadoSanitarioDTO) {
         Familia familia = familiaDAO.getById(familiaIncidenciaCuidadoSanitarioDTO.getIdFamilia());
         Incidencia incidencia = incidenciaDAO.getById(familiaIncidenciaCuidadoSanitarioDTO.getIdIncidencia());
@@ -121,8 +152,8 @@ public class FamiliaIncidenciaCuidadoSanitarioServiceImpl implements FamiliaInci
     }
 
     @Override
-    public CuidadoSanitario validar(Long idFamilia) {
-        List<CuidadoSanitario> lista = cuidadoSanitarioDAO.findByIdFamiliaAndIncidencia(idFamilia);
+    public CuidadoSanitario validar(Long idIncidencia) {
+        List<CuidadoSanitario> lista = cuidadoSanitarioDAO.findByIdIncidencia(idIncidencia);
 
         if (lista != null && !lista.isEmpty()) {
             return lista.get(0);

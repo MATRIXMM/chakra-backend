@@ -1,21 +1,26 @@
 package com.matrixmm.chakrabackend.controller;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.matrixmm.chakrabackend.dto.FamiliaAlimentacionHorarioDTO;
 import com.matrixmm.chakrabackend.dto.FamiliaAnimalDTO;
 import com.matrixmm.chakrabackend.dto.response.RestResponse;
 import com.matrixmm.chakrabackend.model.Alimentacion;
 import com.matrixmm.chakrabackend.service.FamiliaAlimentacionHorarioService;
+import com.matrixmm.chakrabackend.utils.Format;
 import com.matrixmm.chakrabackend.utils.MyUtilMethods;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/familia_alimentacion_horario")
 public class FamiliaAlimentacionHorarioController {
     @Autowired
@@ -30,6 +35,24 @@ public class FamiliaAlimentacionHorarioController {
 
         try {
             List<FamiliaAlimentacionHorarioDTO> familias = familiaAlimentacionHorarioService.listar(periodo, tipo, perPage, page);
+            response.setStatus(HttpStatus.OK);
+            response.setMessage("Listado de familias alimentación");
+            response.setPayload(familias);
+        }
+        catch (Exception e){
+            response.setMessage("Error al listar");
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @RequestMapping(value="listarPorFechas/{fechaInicio}/{fechaFin}", method=RequestMethod.GET)
+    public ResponseEntity<?> listarFamiliaAlimentacionHorarioPorFechas(@PathVariable @DateTimeFormat(pattern=Format.LocalDateTimeYearMonthDayHourMinuteSecondForPathVariable) LocalDateTime fechaInicio,
+                                                                       @PathVariable @DateTimeFormat(pattern=Format.LocalDateTimeYearMonthDayHourMinuteSecondForPathVariable) LocalDateTime fechaFin){
+        RestResponse response = new RestResponse();
+
+        try {
+            List<FamiliaAlimentacionHorarioDTO> familias = familiaAlimentacionHorarioService.listarPorFechas(fechaInicio, fechaFin);
             response.setStatus(HttpStatus.OK);
             response.setMessage("Listado de familias alimentación");
             response.setPayload(familias);

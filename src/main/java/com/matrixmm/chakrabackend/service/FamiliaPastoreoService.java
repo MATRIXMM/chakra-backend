@@ -6,6 +6,7 @@ import com.matrixmm.chakrabackend.dto.FamiliaPastoreoDTO;
 import com.matrixmm.chakrabackend.model.Familia;
 import com.matrixmm.chakrabackend.model.Pastoreo;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface FamiliaPastoreoService {
@@ -13,6 +14,7 @@ public interface FamiliaPastoreoService {
     Boolean existeFamiliaPastoreo(FamiliaPastoreoDTO familiaPastoreoDTO);
     Boolean existePastoreo(Long idPastoreo);
     List<FamiliaPastoreoDTO> listar (String periodo, String tipo, Integer perPage, Integer page);
+    List<FamiliaPastoreoDTO> listarPorFechas(LocalDateTime fechaInicio, LocalDateTime fechaFin);
     void crear(FamiliaPastoreoDTO familiaPastoreoDTO);
     void actualizar(FamiliaPastoreoDTO familiaPastoreoDTO);
     Pastoreo validar(Long idFamilia);

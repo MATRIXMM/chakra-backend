@@ -7,24 +7,29 @@ import com.matrixmm.chakrabackend.dto.response.RestResponse;
 import com.matrixmm.chakrabackend.model.CuidadoSanitario;
 import com.matrixmm.chakrabackend.model.Familia;
 import com.matrixmm.chakrabackend.service.FamiliaCuidadoSanitarioService;
+import com.matrixmm.chakrabackend.utils.Format;
 import com.matrixmm.chakrabackend.utils.MyUtilMethods;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/familia_cuidado_sanitario")
 public class FamiliaCuidadoSanitarioController {
     @Autowired
     FamiliaCuidadoSanitarioService familiaCuidadoSanitarioService;
 
     @RequestMapping(value="listar/{periodo}/{tipo}", method=RequestMethod.GET)
-    public ResponseEntity<?> listarFamiliaAlimentacionHorario(@PathVariable String periodo,
+    public ResponseEntity<?> listarFamiliaCuidadoSanitario(@PathVariable String periodo,
                                                               @PathVariable String tipo,
                                                               @RequestParam(required=true, name="per_page") Integer perPage,
                                                               @RequestParam(required=true, name="page") Integer page){
@@ -32,6 +37,24 @@ public class FamiliaCuidadoSanitarioController {
 
         try {
             List<FamiliaCuidadoSanitarioDTO> familias = familiaCuidadoSanitarioService.listar(periodo, tipo, perPage, page);
+            response.setStatus(HttpStatus.OK);
+            response.setMessage("Listado de familias alimentación");
+            response.setPayload(familias);
+        }
+        catch (Exception e){
+            response.setMessage("Error al listar");
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @RequestMapping(value="listarPorFechas/{fechaInicio}/{fechaFin}", method=RequestMethod.GET)
+    public ResponseEntity<?> listarFamiliaCuidadoSanitarioPorFechas(@PathVariable @DateTimeFormat(pattern=Format.LocalDateYearMonthDay) LocalDate fechaInicio,
+                                                                    @PathVariable @DateTimeFormat(pattern=Format.LocalDateYearMonthDay) LocalDate fechaFin){
+        RestResponse response = new RestResponse();
+
+        try {
+            List<FamiliaCuidadoSanitarioDTO> familias = familiaCuidadoSanitarioService.listarPorFechas(fechaInicio, fechaFin);
             response.setStatus(HttpStatus.OK);
             response.setMessage("Listado de familias alimentación");
             response.setPayload(familias);

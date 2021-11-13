@@ -3,9 +3,11 @@ package com.matrixmm.chakrabackend.service.impl;
 import com.matrixmm.chakrabackend.dao.AnimalDAO;
 import com.matrixmm.chakrabackend.dao.FamiliaDAO;
 import com.matrixmm.chakrabackend.dto.FamiliaAnimalDTO;
+import com.matrixmm.chakrabackend.dto.FamiliaIncidenciaDTO;
 import com.matrixmm.chakrabackend.model.Alimentacion;
 import com.matrixmm.chakrabackend.model.Animal;
 import com.matrixmm.chakrabackend.model.Familia;
+import com.matrixmm.chakrabackend.model.Incidencia;
 import com.matrixmm.chakrabackend.service.FamiliaAnimalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -44,13 +46,18 @@ public class FamiliaAnimalServiceImpl implements FamiliaAnimalService {
 
     @Override
     public Boolean existeFamiliaAnimal(FamiliaAnimalDTO familiaAnimalDTO) {
-        Integer idFamilia = animalDAO.existeFamiliaAnimal(familiaAnimalDTO.getNombre(), familiaAnimalDTO.getPeriodo(),  familiaAnimalDTO.getFechaRegistro(), familiaAnimalDTO.getTipo(), familiaAnimalDTO.getCantidad(), familiaAnimalDTO.getCaracteristica());
+        Integer idFamilia = animalDAO.existeFamiliaAnimal(familiaAnimalDTO.getNombre(), familiaAnimalDTO.getPeriodo(), familiaAnimalDTO.getFechaRegistro(), familiaAnimalDTO.getTipo(), familiaAnimalDTO.getCantidad(), familiaAnimalDTO.getCaracteristica());
 
         if (idFamilia == null) {
             return false;
         }
 
         return true;
+    }
+
+    @Override
+    public Boolean existeFamiliaAnimalById(Long idFamilia) {
+        return familiaDAO.existsById(idFamilia);
     }
 
     @Override
@@ -67,6 +74,7 @@ public class FamiliaAnimalServiceImpl implements FamiliaAnimalService {
                 familiaAnimalDTO.setNombre(familia.getNombre());
                 familiaAnimalDTO.setPeriodo(familia.getPeriodo());
                 familiaAnimalDTO.setFechaRegistro(familia.getFechaRegistro());
+                familiaAnimalDTO.setIdAnimal(animal.getIdAnimal());
                 familiaAnimalDTO.setTipo(animal.getTipo());
                 familiaAnimalDTO.setCantidad(animal.getCantidad());
                 familiaAnimalDTO.setCaracteristica(animal.getCaracteristica());
@@ -77,11 +85,47 @@ public class FamiliaAnimalServiceImpl implements FamiliaAnimalService {
     }
 
     @Override
-    public Familia validar(Long idFamilia) {
+    public void actualizar(FamiliaAnimalDTO familiaAnimalDTO) {
+        Familia familia = familiaDAO.getById(familiaAnimalDTO.getIdFamilia());
+        Animal animal = animalDAO.getById(familiaAnimalDTO.getIdAnimal());
+
+        familia.setNombre(familiaAnimalDTO.getNombre());
+        familia.setPeriodo(familiaAnimalDTO.getPeriodo());
+        familia.setFechaRegistro(familiaAnimalDTO.getFechaRegistro());
+
+        familiaDAO.save(familia);
+
+        animal.setTipo(familiaAnimalDTO.getTipo());
+        animal.setCantidad(familiaAnimalDTO.getCantidad());
+        animal.setCaracteristica(familiaAnimalDTO.getCaracteristica());
+
+        animalDAO.save(animal);
+    }
+
+    @Override
+    public FamiliaAnimalDTO validar(Long idFamilia) {
         List<Familia> lista = familiaDAO.findByIdFamilia(idFamilia);
 
         if (lista != null && !lista.isEmpty()) {
-            return lista.get(0);
+            FamiliaAnimalDTO familiaAnimalDTO = new FamiliaAnimalDTO();
+
+            Familia familia = lista.get(0);
+
+            familiaAnimalDTO.setIdFamilia(familia.getIdFamilia());
+            familiaAnimalDTO.setNombre(familia.getNombre());
+            familiaAnimalDTO.setPeriodo(familia.getPeriodo());
+            familiaAnimalDTO.setFechaRegistro(familia.getFechaRegistro());
+
+            List<Animal> animales = animalDAO.findByIdFamilia(familia.getIdFamilia());
+
+            for (Animal animal : animales) {
+                familiaAnimalDTO.setIdAnimal(animal.getIdAnimal());
+                familiaAnimalDTO.setTipo(animal.getTipo());
+                familiaAnimalDTO.setCantidad(animal.getCantidad());
+                familiaAnimalDTO.setCaracteristica(animal.getCaracteristica());
+            }
+
+            return familiaAnimalDTO;
         }
 
         return null;

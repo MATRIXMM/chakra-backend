@@ -1,7 +1,6 @@
 package com.matrixmm.chakrabackend.service.impl;
 
-import com.matrixmm.chakrabackend.dao.FamiliaDAO;
-import com.matrixmm.chakrabackend.dao.IncidenciaDAO;
+import com.matrixmm.chakrabackend.dao.*;
 import com.matrixmm.chakrabackend.dto.FamiliaCuidadoSanitarioDTO;
 import com.matrixmm.chakrabackend.dto.FamiliaIncidenciaAlimentacionHorarioDTO;
 import com.matrixmm.chakrabackend.dto.FamiliaIncidenciaDTO;
@@ -25,6 +24,15 @@ public class FamiliaIncidenciaServiceImpl implements FamiliaIncidenciaService {
 
     @Autowired
     IncidenciaDAO incidenciaDAO;
+
+    @Autowired
+    AlimentacionDAO alimentacionDAO;
+
+    @Autowired
+    HorarioDAO horarioDAO;
+
+    @Autowired
+    CuidadoSanitarioDAO cuidadoSanitarioDAO;
 
     @Override
     public Boolean existeFamilia(Long idFamilia) {
@@ -68,12 +76,16 @@ public class FamiliaIncidenciaServiceImpl implements FamiliaIncidenciaService {
         Pageable pagination = PageRequest.of(page-1, perPage);
         List<FamiliaIncidenciaDTO> familiasPerPage = new ArrayList<FamiliaIncidenciaDTO>();
         List<Familia> familias = familiaDAO.findIncidenciaByPeriodoAndTipo(periodo, tipo, pagination);
+        System.out.println("****************************************************");
+        System.out.println(familias);
         for (Familia familia : familias) {
             List<Incidencia> incidencias = incidenciaDAO.findByIdFamilia(familia.getIdFamilia());
+            System.out.println(incidencias);
 
             for (Incidencia incidencia : incidencias) {
                 FamiliaIncidenciaDTO familiaIncidenciaDTO = new FamiliaIncidenciaDTO();
                 familiaIncidenciaDTO.setIdFamilia(familia.getIdFamilia());
+                familiaIncidenciaDTO.setNombreFamilia(familia.getNombre());
                 familiaIncidenciaDTO.setIdIncidencia(incidencia.getIdIncidencia());
                 familiaIncidenciaDTO.setFechaRegistro(incidencia.getFechaRegistro());
                 familiaIncidenciaDTO.setNombreAnimal(incidencia.getNombreAnimal());
@@ -105,8 +117,34 @@ public class FamiliaIncidenciaServiceImpl implements FamiliaIncidenciaService {
     }
 
     @Override
-    public Incidencia validar(Long idFamilia) {
-        List<Incidencia> lista = incidenciaDAO.findByIdFamilia(idFamilia);
+    public void eliminar(FamiliaIncidenciaDTO familiaIncidenciaDTO) {
+        Familia familia = familiaDAO.getById(familiaIncidenciaDTO.getIdFamilia());
+        Incidencia incidencia = incidenciaDAO.getById(familiaIncidenciaDTO.getIdIncidencia());
+
+        List<Alimentacion> alimentaciones = alimentacionDAO.findByIdFamiliaAndIdIncidencia(familiaIncidenciaDTO.getIdFamilia(), familiaIncidenciaDTO.getIdIncidencia());
+
+        for (Alimentacion alimentacion : alimentaciones) {
+            List<Horario> horarios = horarioDAO.findByIdAlimentacion(alimentacion.getIdAlimentacion());
+
+            for (Horario horario: horarios) {
+                horarioDAO.delete(horario);
+            }
+
+            alimentacionDAO.delete(alimentacion);
+        }
+
+        List<CuidadoSanitario> cuidadosSanitarios = cuidadoSanitarioDAO.findByIdFamiliaAndIdIncidencia(familiaIncidenciaDTO.getIdFamilia(), familiaIncidenciaDTO.getIdIncidencia());
+
+        for (CuidadoSanitario cuidadoSanitario : cuidadosSanitarios) {
+            cuidadoSanitarioDAO.delete(cuidadoSanitario);
+        }
+
+        incidenciaDAO.delete(incidencia);
+    }
+
+    @Override
+    public Incidencia validar(Long idIncidencia) {
+        List<Incidencia> lista = incidenciaDAO.findByIdIncidencia(idIncidencia);
 
         if (lista != null && !lista.isEmpty()) {
             return lista.get(0);

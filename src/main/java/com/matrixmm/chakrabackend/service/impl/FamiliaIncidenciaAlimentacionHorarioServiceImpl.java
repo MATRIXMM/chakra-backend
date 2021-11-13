@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -115,6 +116,53 @@ public class FamiliaIncidenciaAlimentacionHorarioServiceImpl implements FamiliaI
         return familiasPerPage;
     }
 
+    public List<FamiliaIncidenciaAlimentacionHorarioDTO> listarPorFechas(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        List<Horario> horarios = horarioDAO.findIncidenciaByFechas(fechaInicio, fechaFin);
+
+        Long idAlimentacionPrevious = null;
+        FamiliaIncidenciaAlimentacionHorarioDTO familiaIncidenciaAlimentacionHorarioDTO = new FamiliaIncidenciaAlimentacionHorarioDTO();
+        List<Horario> horariosToInsert = new ArrayList<Horario>();
+
+        List<FamiliaIncidenciaAlimentacionHorarioDTO> familias = new ArrayList<FamiliaIncidenciaAlimentacionHorarioDTO>();
+
+        for (Horario horario : horarios) {
+            Alimentacion alimentacion = horario.getAlimentacion();
+            Familia familia = alimentacion.getFamilia();
+            Incidencia incidencia = alimentacion.getIncidencia();
+
+            if ((idAlimentacionPrevious == null) || (!idAlimentacionPrevious.equals(alimentacion.getIdAlimentacion()))) {
+                familiaIncidenciaAlimentacionHorarioDTO = new FamiliaIncidenciaAlimentacionHorarioDTO();
+
+                horariosToInsert = new ArrayList<Horario>();
+
+                familiaIncidenciaAlimentacionHorarioDTO.setIdFamilia(familia.getIdFamilia());
+                familiaIncidenciaAlimentacionHorarioDTO.setIdAlimentacion(alimentacion.getIdAlimentacion());
+                familiaIncidenciaAlimentacionHorarioDTO.setIdIncidencia(incidencia.getIdIncidencia());
+                familiaIncidenciaAlimentacionHorarioDTO.setTipo(alimentacion.getTipo());
+                familiaIncidenciaAlimentacionHorarioDTO.setCantidad(alimentacion.getCantidad());
+                familiaIncidenciaAlimentacionHorarioDTO.setDiasSeguimiento(alimentacion.getDiasSeguimiento());
+                familiaIncidenciaAlimentacionHorarioDTO.setEstado(alimentacion.getEstado());
+
+                familiaIncidenciaAlimentacionHorarioDTO.setFechaRegistro(incidencia.getFechaRegistro());
+                familiaIncidenciaAlimentacionHorarioDTO.setNombreAnimal(incidencia.getNombreAnimal());
+                familiaIncidenciaAlimentacionHorarioDTO.setCantidadAnimales(incidencia.getCantidadAnimales());
+                familiaIncidenciaAlimentacionHorarioDTO.setGravedadIncidencia(incidencia.getGravedadIncidencia());
+                familiaIncidenciaAlimentacionHorarioDTO.setObservacion(incidencia.getObservacion());
+                familiaIncidenciaAlimentacionHorarioDTO.setResultado(incidencia.getResultado());
+
+                familias.add(familiaIncidenciaAlimentacionHorarioDTO);
+
+                idAlimentacionPrevious = alimentacion.getIdAlimentacion();
+            }
+
+            horariosToInsert.add(horario);
+
+            familiaIncidenciaAlimentacionHorarioDTO.setHorarios(horariosToInsert);
+        }
+
+        return familias;
+    }
+
     @Override
     public void actualizar(FamiliaIncidenciaAlimentacionHorarioDTO familiaIncidenciaAlimentacionHorarioDTO) {
         Familia familia = familiaDAO.getById(familiaIncidenciaAlimentacionHorarioDTO.getIdFamilia());
@@ -149,8 +197,8 @@ public class FamiliaIncidenciaAlimentacionHorarioServiceImpl implements FamiliaI
     }
 
     @Override
-    public FamiliaIncidenciaAlimentacionHorarioDTO validar(Long idFamilia) {
-        List<Alimentacion> lista = alimentacionDAO.findByIdFamiliaAndIncidencia(idFamilia);
+    public FamiliaIncidenciaAlimentacionHorarioDTO validar(Long idIncidencia) {
+        List<Alimentacion> lista = alimentacionDAO.findByIdIncidencia(idIncidencia);
 
         if (lista != null && !lista.isEmpty()) {
             Alimentacion alimentacion = lista.get(0);

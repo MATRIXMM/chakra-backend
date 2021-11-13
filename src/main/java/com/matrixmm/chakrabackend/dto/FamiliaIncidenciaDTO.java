@@ -14,6 +14,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class FamiliaIncidenciaDTO implements Serializable {
     private Long idFamilia;
+    private String nombreFamilia;
     private Long idIncidencia;
     @JsonFormat(pattern=Format.LocalDateYearMonthDay)
     private LocalDate fechaRegistro;

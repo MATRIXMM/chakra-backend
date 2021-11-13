@@ -22,7 +22,7 @@ public class FamiliaIncidenciaAlimentacionHorarioDTO implements Serializable {
     private Integer cantidad;
     private Integer diasSeguimiento;
     private Boolean estado;
-    @JsonFormat(pattern=Format.LocalTimeHourMinutes)
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern=Format.DATE_TIME)
     private List<Horario> horarios;
     @JsonFormat(pattern=Format.LocalDateYearMonthDay)
     private LocalDate fechaRegistro;

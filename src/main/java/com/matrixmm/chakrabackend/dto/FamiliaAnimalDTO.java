@@ -18,6 +18,7 @@ public class FamiliaAnimalDTO implements Serializable {
     private String periodo;
     @JsonFormat(pattern=Format.LocalDateYearMonthDay)
     private LocalDate fechaRegistro;
+    private Long idAnimal;
     private String tipo;
     private Integer cantidad;
     private String caracteristica;

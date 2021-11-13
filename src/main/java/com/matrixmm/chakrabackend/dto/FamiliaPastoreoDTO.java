@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -17,8 +18,7 @@ public class FamiliaPastoreoDTO implements Serializable {
     private Long idFamilia;
     private Long idPastoreo;
     private Integer tiempo;
-    @JsonFormat(pattern=Format.LocalTimeHourMinutes)
-    private LocalTime horario;
+    private LocalDateTime horario;
     private String dia;
     private Boolean estado;
 }
